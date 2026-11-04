@@ -5,9 +5,9 @@ import random
 from segmenta.aliases import Point
 
 
-def make_centres(
+def make_centers(
     n_centers: int,
-    dim: int,
+    dim: int = 2,
     spread: float = 10.0,
     seed: int | None = None,
 ) -> list[Point]:
