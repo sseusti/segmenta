@@ -1,6 +1,6 @@
 import pytest
 
-from segmenta.core import KMeans, mean, sq_dist
+from segmenta.core import KMeans, elbow, mean, sq_dist
 from segmenta.data import make_blobs
 
 
@@ -118,3 +118,22 @@ def test_empty_cluster_keeps_running() -> None:
     new = model._update(points, labels)
     assert new[1] == [0.0, 0.0]
     assert len(model.fit(points)) == 3
+
+
+def test_elbow_one_value_per_k() -> None:
+    inertias = elbow(_blobs(), [1, 2, 3, 4], seed=0)
+    assert len(inertias) == 4
+
+
+def test_elbow_k1_is_total_scatter() -> None:
+    points = _blobs()
+    center = mean(points)
+    expected = sum(sq_dist(p, center) for p in points)
+    assert elbow(points, [1])[0] == pytest.approx(expected)
+
+
+def test_elbow_bends_at_true_k() -> None:
+    # With 3 well separated blobs the drop 2->3 is much larger than 3->4.
+    i1, i2, i3, i4 = elbow(_blobs(), [1, 2, 3, 4], seed=0)
+    assert i1 > i2 > i3
+    assert (i2 - i3) > 5 * (i3 - i4)
