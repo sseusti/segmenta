@@ -2,8 +2,9 @@
 
 import argparse
 
-from segmenta.core import KMeans
+from segmenta.core import KMeans, elbow
 from segmenta.data import make_blobs, make_centers
+from segmenta.plot import plot_clusters, plot_elbow
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -37,6 +38,27 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--seed", type=int, default=None, help="random seed for reproducibility"
     )
+    parser.add_argument(
+        "--plot",
+        metavar="PATH",
+        default=None,
+        help="save a scatter plot of the clusters to PATH (e.g. clusters.png)",
+    )
+    parser.add_argument(
+        "--elbow",
+        metavar="PATH",
+        nargs="?",
+        const="elbow.png",
+        default=None,
+        help="run the elbow method for k=1..--k-max and save the plot "
+        "(default path: elbow.png)",
+    )
+    parser.add_argument(
+        "--k-max",
+        type=int,
+        default=10,
+        help="largest k for the elbow method (default: 10)",
+    )
     return parser
 
 
@@ -47,8 +69,11 @@ def run(
     max_iter: int = 100,
     sigma: float = 1.0,
     seed: int | None = None,
+    plot: str | None = None,
+    elbow_path: str | None = None,
+    k_max: int = 10,
 ) -> str:
-    """Generate data, fit k-means and return a text report.
+    """Generate data, fit k-means, optionally save plots; return a text report.
 
     Raises:
         ValueError: If any parameter is invalid.
@@ -66,6 +91,23 @@ def run(
         coords = ", ".join(f"{x:.2f}" for x in center)
         lines.append(f"  cluster {j}: {labels.count(j)} points, center ({coords})")
     lines.append(f"Inertia: {model.inertia(points, labels):.2f}")
+
+    if plot is not None:
+        plot_clusters(points, labels, model.centroids_, plot)
+        lines.append(f"Cluster plot saved to {plot}")
+
+    if elbow_path is not None:
+        if k_max < 1:
+            raise ValueError("k-max must be at least 1")
+        k_values = list(range(1, k_max + 1))
+        inertias = elbow(points, k_values, max_iter=max_iter, seed=seed)
+        lines.append("Elbow method:")
+        lines.extend(
+            f"  k={kk}: {val:.2f}" for kk, val in zip(k_values, inertias, strict=True)
+        )
+        plot_elbow(k_values, inertias, elbow_path)
+        lines.append(f"Elbow plot saved to {elbow_path}")
+
     return "\n".join(lines)
 
 
@@ -81,8 +123,11 @@ def main(argv: list[str] | None = None) -> int:
             max_iter=args.max_iter,
             sigma=args.sigma,
             seed=args.seed,
+            plot=args.plot,
+            elbow_path=args.elbow,
+            k_max=args.k_max,
         )
-    except ValueError as exc:
+    except (ValueError, OSError) as exc:
         parser.error(str(exc))
     print(report)
     return 0

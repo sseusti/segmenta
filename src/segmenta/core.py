@@ -142,3 +142,22 @@ class KMeans:
         if not self.centroids_:
             raise RuntimeError("model is not fitted; call fit() first")
         return self._assign(points)
+
+
+def elbow(
+    points: list[Point],
+    k_values: list[int],
+    max_iter: int = 100,
+    seed: int | None = None,
+) -> list[float]:
+    """Return the final inertia of k-means for each k in k_values.
+
+    Used by the elbow method: the optimal k is where the curve of inertia
+    versus k bends and further clusters stop reducing it much.
+    """
+    inertias: list[float] = []
+    for k in k_values:
+        model = KMeans(n_clusters=k, max_iter=max_iter, seed=seed)
+        labels = model.fit(points)
+        inertias.append(model.inertia(points, labels))
+    return inertias
