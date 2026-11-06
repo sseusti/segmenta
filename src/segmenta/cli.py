@@ -42,16 +42,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--plot",
         metavar="PATH",
         default=None,
-        help="save a scatter plot of the clusters to PATH (e.g. clusters.png)",
+        help="save a scatter plot of the clusters to PATH (e.g. output/clusters.png)",
     )
     parser.add_argument(
         "--elbow",
         metavar="PATH",
         nargs="?",
-        const="elbow.png",
+        const="output/elbow.png",
         default=None,
         help="run the elbow method for k=1..--k-max and save the plot "
-        "(default path: elbow.png)",
+        "(default path: output/elbow.png)",
     )
     parser.add_argument(
         "--k-max",

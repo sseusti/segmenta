@@ -11,6 +11,14 @@ from matplotlib.figure import Figure
 from segmenta.aliases import Point
 
 
+def _save(fig: Figure, path: str | Path) -> None:
+    """Save a figure, creating parent directories if needed."""
+    out = Path(path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(out)
+
+
 def plot_clusters(
     points: list[Point],
     labels: list[int],
@@ -44,8 +52,7 @@ def plot_clusters(
     ax.set_aspect("equal", adjustable="datalim")
     ax.grid(alpha=0.3)
     ax.legend(loc="best")
-    fig.tight_layout()
-    fig.savefig(path)
+    _save(fig, path)
 
 
 def plot_elbow(k_values: list[int], inertias: list[float], path: str | Path) -> None:
@@ -58,5 +65,4 @@ def plot_elbow(k_values: list[int], inertias: list[float], path: str | Path) -> 
     ax.set_ylabel("inertia")
     ax.set_xticks(k_values)
     ax.grid(alpha=0.3)
-    fig.tight_layout()
-    fig.savefig(path)
+    _save(fig, path)

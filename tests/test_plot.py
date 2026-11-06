@@ -20,3 +20,9 @@ def test_plot_elbow_writes_png(tmp_path: Path) -> None:
     out = tmp_path / "elbow.png"
     plot_elbow([1, 2, 3], [100.0, 40.0, 30.0], out)
     assert out.read_bytes().startswith(PNG_SIGNATURE)
+
+
+def test_plot_creates_missing_directory(tmp_path: Path) -> None:
+    out = tmp_path / "nested" / "dir" / "elbow.png"
+    plot_elbow([1, 2], [10.0, 5.0], out)
+    assert out.exists()

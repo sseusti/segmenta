@@ -50,7 +50,7 @@ Inertia: 597.64
 | `--sigma` | 1.0 | разброс точек вокруг центра |
 | `--seed` | — | seed для воспроизводимости |
 | `--plot PATH` | — | сохранить график кластеров |
-| `--elbow [PATH]` | `elbow.png` | метод локтя: inertia для k = 1..`--k-max` и график |
+| `--elbow [PATH]` | `output/elbow.png` | метод локтя: inertia для k = 1..`--k-max` и график |
 | `--k-max` | 10 | наибольшее k для метода локтя |
 
 Некорректные аргументы дают понятное сообщение и код выхода 2:
@@ -62,8 +62,12 @@ kmeans: error: number of points must be at least n_clusters
 
 ### Визуализации
 
+Графики сохраняются по указанному пути; недостающие папки создаются
+автоматически. Папка `output/` добавлена в `.gitignore` — удобно складывать
+туда результаты экспериментов.
+
 ```bash
-uv run python kmeans.py --seed 42 --plot clusters.png --elbow elbow.png --k-max 8
+uv run python kmeans.py --seed 42 --plot output/clusters.png --elbow output/elbow.png --k-max 8
 ```
 
 Метод локтя: inertia резко падает до k = 3 и дальше почти не меняется.
